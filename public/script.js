@@ -33,7 +33,9 @@ document.addEventListener('DOMContentLoaded', () => {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
-        const ws = new WebSocket('ws://localhost:3000');
+        //const ws = new WebSocket('ws://localhost:3000');
+        const ws = new WebSocket('ws://julien.arcioni.caen.mds-project.fr');
+
 
         ws.onopen = () => {
             if ('geolocation' in navigator) {
