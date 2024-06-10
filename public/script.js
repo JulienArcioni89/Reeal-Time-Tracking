@@ -101,6 +101,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Initialiser WebRTC
         const localVideo = document.getElementById('local-video');
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            console.error('getUserMedia is not supported by this browser');
+            return;
+        }
         navigator.mediaDevices.getUserMedia({ video: true, audio: true })
             .then(stream => {
                 localVideo.srcObject = stream;
