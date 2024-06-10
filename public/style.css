@@ -4,6 +4,7 @@ body, html {
     height: 100%;
     display: flex;
     flex-direction: column;
+    font-family: Arial, sans-serif;
 }
 
 #map-container {
@@ -38,17 +39,64 @@ body, html {
     display: flex;
     justify-content: center;
     align-items: center;
+    flex-direction: row;
     gap: 60px;
+    margin-top: 30px;
+}
+
+.second-block {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap: 60px;
+    margin-top: 30px;
+}
+
+
+#name-form-container {
+    margin-top: 25px;
+}
+
+#name-form {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap: 10px;
+
+    label {
+        font-size: 1.2em;
+    }
+
+    input {
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 1em;
+    }
+
+    button {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        background: #6d9e85;
+        color: #fff;
+        font-size: 1em;
+        cursor: pointer;
+        transition: background 0.3s ease;
+    }
+
+    button:hover {
+        background: #6d9e85;
+    }
 }
 
 #video-container {
-    width: fit-content;
-    height: fit-content;
-    display: flex;
-    justify-content: center;
+
+    video {
+    }
 }
 
-video {
-    width: 200px;
-    margin: 10px;
-}
+

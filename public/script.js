@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const { latitude, longitude } = position.coords;
                     if (!markers[username]) {
                         markers[username] = L.marker([latitude, longitude]).addTo(map);
-                        markers[username].bindPopup(`You are ${username}`).openPopup();
+                        markers[username].bindPopup(`Vous êtes ${username}`).openPopup();
                     } else {
                         markers[username].setLatLng([latitude, longitude]);
                     }
