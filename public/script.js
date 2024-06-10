@@ -1,10 +1,12 @@
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('name-form');
-    const mapContainer = document.getElementById('map');
+    const mapContainer = document.getElementById('map-container');
     const videoContainer = document.getElementById('video-container');
+    const userList = document.getElementById('users');
     let username;
     let map;
     const markers = {};
+    const users = {};
 
     form.addEventListener('submit', (event) => {
         event.preventDefault();
@@ -14,6 +16,15 @@ document.addEventListener('DOMContentLoaded', () => {
         videoContainer.style.display = 'block';
         initMapAndWebRTC();
     });
+
+    function updateUserList() {
+        userList.innerHTML = '';
+        for (const user in users) {
+            const li = document.createElement('li');
+            li.textContent = `${user}: ${users[user].latitude.toFixed(5)}, ${users[user].longitude.toFixed(5)}`;
+            userList.appendChild(li);
+        }
+    }
 
     function initMapAndWebRTC() {
         map = L.map('map').setView([51.505, -0.09], 13);
@@ -44,6 +55,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         },
                         body: JSON.stringify({ username, latitude, longitude })
                     }).catch(err => console.error('Error sending position:', err));
+
+                    // Mettre à jour l'utilisateur dans la liste
+                    users[username] = { latitude, longitude };
+                    updateUserList();
                 }, (err) => {
                     console.error('Error getting geolocation:', err);
                 }, {
@@ -62,8 +77,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (user.username !== username) {
                         markers[user.username] = L.marker([user.latitude, user.longitude]).addTo(map);
                         markers[user.username].bindPopup(user.username).openPopup();
+                        users[user.username] = { latitude: user.latitude, longitude: user.longitude };
                     }
                 });
+                updateUserList();
             } else if (data.type === 'update') {
                 const { username: user, latitude, longitude } = data.data;
                 if (user !== username) {
@@ -73,6 +90,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     } else {
                         markers[user].setLatLng([latitude, longitude]);
                     }
+                    // Mettre à jour l'utilisateur dans la liste
+                    users[user] = { latitude, longitude };
+                    updateUserList();
                 }
             }
         };

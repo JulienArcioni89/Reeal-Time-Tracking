@@ -6,26 +6,46 @@ body, html {
     flex-direction: column;
 }
 
-#name-form-container {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-#map {
-    flex: 1;
+#map-container {
     height: 400px;
     width: 50%;
 }
 
-#video-container {
-    position: fixed;
-    bottom: 0;
+#map {
     width: 100%;
+    height: 100%;
+}
+
+#user-list {
+    border-radius: 20px;
+    padding: 20px;
+    background-color: #f0f0f0;
+    width: fit-content;
+}
+
+#user-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+#user-list button {
+    margin-left: 10px;
+}
+
+.first-block {
     display: flex;
     justify-content: center;
-    background: rgba(0, 0, 0, 0.5);
+    align-items: center;
+    gap: 60px;
+}
+
+#video-container {
+    width: fit-content;
+    height: fit-content;
+    display: flex;
+    justify-content: center;
 }
 
 video {
