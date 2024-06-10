@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }).addTo(map);
 
         //const ws = new WebSocket('ws://localhost:3000');
-        const ws = new WebSocket('ws://julien.arcioni.caen.mds-project.fr');
+        const ws = new WebSocket('wss://julien.arcioni.caen.mds-project.fr');
 
 
         ws.onopen = () => {
