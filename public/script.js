@@ -50,14 +50,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     ws.send(JSON.stringify({ username, latitude, longitude }));
 
-                    fetch('/api/position', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ username, latitude, longitude })
-                    }).catch(err => console.error('Error sending position:', err));
-
                     // Mettre à jour l'utilisateur dans la liste
                     users[username] = { latitude, longitude };
                     updateUserList();
@@ -96,6 +88,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     users[user] = { latitude, longitude };
                     updateUserList();
                 }
+            } else if (data.type === 'remove') {
+                const user = data.username;
+                if (markers[user]) {
+                    map.removeLayer(markers[user]);
+                    delete markers[user];
+                }
+                delete users[user];
+                updateUserList();
             }
         };
 

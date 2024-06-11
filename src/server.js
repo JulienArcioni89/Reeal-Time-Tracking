@@ -23,6 +23,8 @@ connectDB().then(db => {
     app.use('/api', apiRouter);
 
     wss.on('connection', (ws) => {
+        let currentUsername = null;
+
         // Envoyer les positions des utilisateurs connectés au nouveau client
         ws.send(JSON.stringify({ type: 'init', usersPositions }));
 
@@ -39,6 +41,8 @@ connectDB().then(db => {
                 usersPositions[userIndex] = data;
             }
 
+            currentUsername = data.username; // Assigner le nom d'utilisateur actuel
+
             // Envoyer la mise à jour de la position à tous les clients connectés
             wss.clients.forEach(client => {
                 if (client.readyState === WebSocket.OPEN) {
@@ -48,7 +52,16 @@ connectDB().then(db => {
         });
 
         ws.on('close', () => {
-            // Optionnel : gérer la déconnexion de l'utilisateur et retirer sa position de la liste
+            if (currentUsername) {
+                usersPositions = usersPositions.filter(user => user.username !== currentUsername);
+
+                // Informer les autres clients de la suppression de l'utilisateur
+                wss.clients.forEach(client => {
+                    if (client.readyState === WebSocket.OPEN) {
+                        client.send(JSON.stringify({ type: 'remove', username: currentUsername }));
+                    }
+                });
+            }
         });
     });
 
