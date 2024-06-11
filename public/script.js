@@ -114,6 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 */
+
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('name-form');
     const mapContainer = document.getElementById('map-container');
@@ -125,6 +126,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const users = {};
     const accelerometerData = {};
     let ws;
+    let lastAccelSendTime = 0;
+    const accelSendInterval = 1000; // Temporiser l'envoi des données toutes les 1000ms (1 seconde)
 
     form.addEventListener('submit', (event) => {
         event.preventDefault();
@@ -239,7 +242,11 @@ document.addEventListener('DOMContentLoaded', () => {
                                     const { acceleration } = event;
                                     if (acceleration) {
                                         const { x, y, z } = acceleration;
-                                        ws.send(JSON.stringify({ type: 'accelerometer', username, x, y, z }));
+                                        const currentTime = Date.now();
+                                        if (currentTime - lastAccelSendTime > accelSendInterval) {
+                                            lastAccelSendTime = currentTime;
+                                            ws.send(JSON.stringify({ type: 'accelerometer', username, x, y, z }));
+                                        }
                                     }
                                 });
                             }
