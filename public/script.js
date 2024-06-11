@@ -127,7 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const accelerometerData = {};
     let ws;
     let lastAccelSendTime = 0;
-    const accelSendInterval = 1000; // Temporiser l'envoi des données toutes les 1000ms (1 seconde)
+    const accelSendInterval = 6000; // Temporiser l'envoi des données toutes les 1000ms (1 seconde)
 
     form.addEventListener('submit', (event) => {
         event.preventDefault();
