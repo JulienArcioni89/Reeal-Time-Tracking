@@ -114,7 +114,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 */
-
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('name-form');
     const mapContainer = document.getElementById('map-container');
@@ -139,12 +138,17 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateUserList() {
         userList.innerHTML = '';
         for (const user in users) {
+            const latitude = users[user].latitude;
+            const longitude = users[user].longitude;
+            const accelData = accelerometerData[user];
+            const accelText = accelData ? `x: ${accelData.x?.toFixed(2) || 'N/A'}, y: ${accelData.y?.toFixed(2) || 'N/A'}, z: ${accelData.z?.toFixed(2) || 'N/A'}` : 'N/A';
+
             const li = document.createElement('li');
             li.innerHTML = `
-                ${user}: ${users[user].latitude.toFixed(5)}, ${users[user].longitude.toFixed(5)}
+                ${user}: ${latitude !== undefined ? latitude.toFixed(5) : 'N/A'}, ${longitude !== undefined ? longitude.toFixed(5) : 'N/A'}
                 <button onclick="requestAccelAccess('${user}')">Activer l'accéléromètre</button>
                 <br>
-                Accéléromètre: ${accelerometerData[user] ? `x: ${accelerometerData[user].x.toFixed(2)}, y: ${accelerometerData[user].y.toFixed(2)}, z: ${accelerometerData[user].z.toFixed(2)}` : 'N/A'}
+                Accéléromètre: ${accelText}
             `;
             userList.appendChild(li);
         }
@@ -158,7 +162,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }).addTo(map);
 
         ws = new WebSocket('wss://julien.arcioni.caen.mds-project.fr');
-        //ws = new WebSocket('ws://localhost:3000');
 
         ws.onopen = () => {
             if ('geolocation' in navigator) {
@@ -173,7 +176,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     ws.send(JSON.stringify({ type: 'position', username, latitude, longitude }));
 
-                    // Mettre à jour l'utilisateur dans la liste
                     users[username] = { latitude, longitude };
                     updateUserList();
                 }, (err) => {
