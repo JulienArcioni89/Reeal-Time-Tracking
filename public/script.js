@@ -38,33 +38,24 @@ document.addEventListener('DOMContentLoaded', () => {
             li.innerHTML = `
                 ${user}: ${latitude !== undefined ? latitude.toFixed(5) : 'N/A'}, ${longitude !== undefined ? longitude.toFixed(5) : 'N/A'}
                 <button class="accelerometer" onclick="requestAccelAccess('${user}')">Activer l'accéléromètre</button>
-<!--                ADD HERE-->
-                <button class="call-button" id="${user}-call-button">Appeler</button>
                 <br>
                 Accéléromètre: ${accelText}
             `;
             userList.appendChild(li);
 
             // Gestionnaire d'événements pour le bouton d'appel
-            document.getElementById(`${user}-call-button`).addEventListener('click', () => {
-                initWebRTC(user);
-            });
+            if (user !== username) {
+                li.innerHTML = `
+                ${user}: ${latitude !== undefined ? latitude.toFixed(5) : 'N/A'}, ${longitude !== undefined ? longitude.toFixed(5) : 'N/A'}
+                <button class="call-button" id="${user}-call-button">Appeler</button>
+            `;
+                userList.appendChild(li);
+                document.getElementById(`${user}-call-button`).addEventListener('click', () => {
+                    initWebRTC(user);
+                });
+            }
         }
     }
-
-/*    function initWebRTC(user) {
-        const localVideo = document.getElementById('local-video');
-        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-            console.error('getUserMedia is not supported by this browser');
-            return;
-        }
-        navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-            .then(stream => {
-                localVideo.srcObject = stream;
-                // Logique pour établir la connexion WebRTC avec l'utilisateur spécifié
-            })
-            .catch(err => console.error('Error accessing media devices.', err));
-    }*/
 
     // Fonction pour initialiser la carte et la connexion WebSocket
     function initMapAndWebSocket() {
