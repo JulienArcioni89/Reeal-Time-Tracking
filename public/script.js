@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const accelerometerData = {};
     let ws;
     let lastAccelSendTime = 0;
+    let peerConnection;
     // Temporiser l'envoi des données toutes les 6 secondes
     const accelSendInterval = 6000;
 
@@ -36,13 +37,34 @@ document.addEventListener('DOMContentLoaded', () => {
             const li = document.createElement('li');
             li.innerHTML = `
                 ${user}: ${latitude !== undefined ? latitude.toFixed(5) : 'N/A'}, ${longitude !== undefined ? longitude.toFixed(5) : 'N/A'}
-                <button onclick="requestAccelAccess('${user}')">Activer l'accéléromètre</button>
+                <button class="accelerometer" onclick="requestAccelAccess('${user}')">Activer l'accéléromètre</button>
+<!--                ADD HERE-->
+                <button class="call-button" id="${user}-call-button">Appeler</button>
                 <br>
                 Accéléromètre: ${accelText}
             `;
             userList.appendChild(li);
+
+            // Gestionnaire d'événements pour le bouton d'appel
+            document.getElementById(`${user}-call-button`).addEventListener('click', () => {
+                initWebRTC(user);
+            });
         }
     }
+
+/*    function initWebRTC(user) {
+        const localVideo = document.getElementById('local-video');
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            console.error('getUserMedia is not supported by this browser');
+            return;
+        }
+        navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+            .then(stream => {
+                localVideo.srcObject = stream;
+                // Logique pour établir la connexion WebRTC avec l'utilisateur spécifié
+            })
+            .catch(err => console.error('Error accessing media devices.', err));
+    }*/
 
     // Fonction pour initialiser la carte et la connexion WebSocket
     function initMapAndWebSocket() {
@@ -122,6 +144,28 @@ document.addEventListener('DOMContentLoaded', () => {
                 delete users[user];
                 updateUserList();
             }
+
+            // Logique pour gérer les appels WebRTC
+            if (data.type === 'offer') {
+                // Lorsque vous recevez une offre, demandez à l'utilisateur s'il souhaite accepter l'appel
+                const acceptCall = window.confirm(`Appel entrant de ${data.source}. Accepter l'appel ?`);
+                if (acceptCall) {
+                    // Si l'utilisateur accepte l'appel, créez une réponse et envoyez-la
+                    peerConnection.setRemoteDescription(data.offer)
+                        .then(() => peerConnection.createAnswer())
+                        .then(answer => peerConnection.setLocalDescription(answer))
+                        .then(() => {
+                            ws.send(JSON.stringify({ type: 'answer', target: data.source, answer: peerConnection.localDescription }));
+                        });
+                }
+            } else if (data.type === 'answer') {
+                // Lorsque vous recevez une réponse, définissez-la comme description distante
+                peerConnection.setRemoteDescription(data.answer);
+            } else if (data.type === 'icecandidate') {
+                // Lorsque vous recevez un candidat ICE, ajoutez-le à la RTCPeerConnection
+                const candidate = new RTCIceCandidate(data.candidate);
+                peerConnection.addIceCandidate(candidate);
+            }
         };
 
         // Gestion des erreurs WebSocket
@@ -158,16 +202,39 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
-    // Initialiser WebRTC
-    const localVideo = document.getElementById('local-video');
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        console.error('getUserMedia is not supported by this browser');
-        return;
+    function initWebRTC(user) {
+        const localVideo = document.getElementById('local-video');
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            console.error('getUserMedia is not supported by this browser');
+            return;
+        }
+        navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+            .then(stream => {
+                localVideo.srcObject = stream;
+
+                // Créer une instance de RTCPeerConnection
+                peerConnection = new RTCPeerConnection();
+
+                // Ajouter le flux local à la RTCPeerConnection
+                stream.getTracks().forEach(track => {
+                    peerConnection.addTrack(track, stream);
+                });
+
+                // Écouter l'événement 'icecandidate'
+                peerConnection.onicecandidate = event => {
+                    if (event.candidate) {
+                        // Envoyer le candidat ICE à l'autre utilisateur
+                        ws.send(JSON.stringify({ type: 'icecandidate', target: user, candidate: event.candidate }));
+                    }
+                };
+
+                // Créer une offre SDP et l'envoyer à l'autre utilisateur
+                peerConnection.createOffer()
+                    .then(offer => peerConnection.setLocalDescription(offer))
+                    .then(() => {
+                        ws.send(JSON.stringify({ type: 'offer', target: user, offer: peerConnection.localDescription }));
+                    });
+            })
+            .catch(err => console.error('Error accessing media devices.', err));
     }
-    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-        .then(stream => {
-            localVideo.srcObject = stream;
-            // Logique pour établir la connexion WebRTC
-        })
-        .catch(err => console.error('Error accessing media devices.', err));
 });
