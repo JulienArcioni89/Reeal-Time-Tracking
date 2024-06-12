@@ -61,9 +61,6 @@ Bienvenue dans l'application de suivi en temps réel et de vidéoconférence. Ce
 
 ## Fonctionnalités enn cours de développement
 
-### Accéléromètre
-OPTIMISATIONS D'AFFICHAGE
-
 ### Visioconférence
 EN COURS
 
