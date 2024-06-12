@@ -48,6 +48,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 li.innerHTML = `
                 ${user}: ${latitude !== undefined ? latitude.toFixed(5) : 'N/A'}, ${longitude !== undefined ? longitude.toFixed(5) : 'N/A'}
                 <button class="call-button" id="${user}-call-button">Appeler</button>
+                <br>
+                Accéléromètre: ${accelText}
             `;
                 userList.appendChild(li);
                 document.getElementById(`${user}-call-button`).addEventListener('click', () => {
